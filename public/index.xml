@@ -12,6 +12,45 @@
     
     
     <item>
+      <title>About</title>
+      <link>/blog/about/</link>
+      <pubDate>Thu, 14 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/blog/about/</guid>
+      <description>Here’s a little bit about my background.
+I was born and raised in Maracaibo, Venezuela. Now as a 23-yr old American dual citizen, I am grateful to have lived and experienced two different worlds and two completely different life experiences. I miss my home country deeply, but America opened its doors to me and my family as Venezuelan immigrants and it has become my 2nd home. Although it has not been easy to be away from family, I have learned that the best gift that came from moving is meeting new people that can change your life for the best.</description>
+    </item>
+    
+    <item>
+      <title>About</title>
+      <link>/2020/05/14/about/</link>
+      <pubDate>Thu, 14 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/05/14/about/</guid>
+      <description>Here’s a little bit about my background.
+I was born and raised in Maracaibo, Venezuela. Now as a 23-yr old American dual citizen, I am grateful to have lived and experienced two different worlds and two completely different life experiences. I miss my home country deeply, but America opened its doors to me and my family as Venezuelan immigrants and it has become my 2nd home. Although it has not been easy to be away from family, I have learned that the best gift that came from moving is meeting new people that can change your life for the best.</description>
+    </item>
+    
+    <item>
+      <title>Python Blog Post</title>
+      <link>/blog/python-blog-post/</link>
+      <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/blog/python-blog-post/</guid>
+      <description> This is a brief exchange between Python and R code.
+# Python code list=[&amp;#39;10&amp;#39;, &amp;#39;27&amp;#39;, &amp;#39;4&amp;#39;, &amp;#39;23&amp;#39;] list[2] ## &amp;#39;4&amp;#39; # R code library(reticulate) py$list ## [1] &amp;quot;10&amp;quot; &amp;quot;27&amp;quot; &amp;quot;4&amp;quot; &amp;quot;23&amp;quot; list &amp;lt;- py$list print(list[2]) ## [1] &amp;quot;27&amp;quot; </description>
+    </item>
+    
+    <item>
+      <title>Python Blog Post</title>
+      <link>/2020/05/13/python-blog-post/</link>
+      <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/05/13/python-blog-post/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>Projects</title>
       <link>/projects/</link>
       <pubDate>Sun, 02 Oct 2016 22:55:05 -0400</pubDate>
@@ -24,62 +63,6 @@
     </item>
     
     <item>
-      <title>Hello R Markdown</title>
-      <link>/blog/2015-07-23-r-rmarkdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
-      
-      <guid>/blog/2015-07-23-r-rmarkdown/</guid>
-      <description>R Markdown This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars) ## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
-    </item>
-    
-    <item>
-      <title>Creating a New Theme</title>
-      <link>/blog/creating-a-new-theme/</link>
-      <pubDate>Sun, 28 Sep 2014 00:00:00 +0000</pubDate>
-      
-      <guid>/blog/creating-a-new-theme/</guid>
-      <description>Introduction This tutorial will show you how to create a simple theme in Hugo. I assume that you are familiar with HTML, the bash command line, and that you are comfortable using Markdown to format content. I&amp;rsquo;ll explain how Hugo uses templates and how you can organize your templates to create a theme. I won&amp;rsquo;t cover using CSS to style your theme.
-We&amp;rsquo;ll start with creating a new site with a very basic template.</description>
-    </item>
-    
-    <item>
-      <title>(Hu)go Template Primer</title>
-      <link>/blog/goisforlovers/</link>
-      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate>
-      
-      <guid>/blog/goisforlovers/</guid>
-      <description>Hugo uses the excellent go html/template library for its template engine. It is an extremely lightweight engine that provides a very small amount of logic. In our experience that it is just the right amount of logic to be able to create a good static website. If you have used other template systems from different languages or frameworks you will find a lot of similarities in go templates.
-This document is a brief primer on using go templates.</description>
-    </item>
-    
-    <item>
-      <title>Getting Started with Hugo</title>
-      <link>/blog/hugoisforlovers/</link>
-      <pubDate>Wed, 02 Apr 2014 00:00:00 +0000</pubDate>
-      
-      <guid>/blog/hugoisforlovers/</guid>
-      <description>Step 1. Install Hugo Goto hugo releases and download the appropriate version for your os and architecture.
-Save it somewhere specific as we will be using it in the next step.
-More complete instructions are available at installing hugo
-Step 2. Build the Docs Hugo has its own example site which happens to also be the documentation site you are reading right now.
-Follow the following steps:
- Clone the hugo repository Go into the repo Run hugo in server mode and build the docs Open your browser to http://localhost:1313  Corresponding pseudo commands:</description>
-    </item>
-    
-    <item>
-      <title>Migrate to Hugo from Jekyll</title>
-      <link>/blog/migrate-from-jekyll/</link>
-      <pubDate>Mon, 10 Mar 2014 00:00:00 +0000</pubDate>
-      
-      <guid>/blog/migrate-from-jekyll/</guid>
-      <description>Move static content to static Jekyll has a rule that any directory not starting with _ will be copied as-is to the _site output. Hugo keeps all static content under static. You should therefore move it all there. With Jekyll, something that looked like
-▾ &amp;lt;root&amp;gt;/ ▾ images/ logo.png  should become
-▾ &amp;lt;root&amp;gt;/ ▾ static/ ▾ images/ logo.png  Additionally, you&amp;rsquo;ll want any files that should reside at the root (such as CNAME) to be moved to static.</description>
-    </item>
-    
-    <item>
       <title>Project 2: Modeling, Testing, and Predicting</title>
       <link>/project2/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -87,6 +70,25 @@ Follow the following steps:
       <guid>/project2/</guid>
       <description>###Intro
 library(tidyverse) library(Ecdat) library(dplyr) doc &amp;lt;- DoctorContacts doc &amp;lt;- select(DoctorContacts, -c(lc, idp, lpi, fmde, physlim, linc, lfam, sex, black)) doc &amp;lt;- doc[-(361:20186),] #The dataset I obtained comes from the source https://vincentarelbundock.github.io/Rdatasets/datasets.html. It observes the number of outpatient visits to a medical doctor across different variables. “Health” indicates the health of an individual, poor, fair, good, and excellent. The variable “ndisease” indicates the number of chronic diseases an individual has, “educdec” shows the years of schooling of the head of the household, “child” represents whether that person is over 18 (1=True, 0=False), ages of the individuals, and lastly “mdu” is the number of outpation visits to a medical doctor.</description>
+    </item>
+    
+    <item>
+      <title>project1</title>
+      <link>/project1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/project1/</guid>
+      <description>Intro For Project 1, I have chosen to split a single dataset in two. The original dataset is called “insurance” obtained from the website Kaggle (source: https://www.kaggle.com/mirichoi0218/insurance). The data is obtained from a random sample of individuals in the U.S. It contains 3 categorical variables: sex, smoker, and region, and 4 numerical variables: age, bmi, children, and charges. I split the dataset into two separate datasets and re-joined them again using dplyr functions.</description>
+    </item>
+    
+    <item>
+      <title>Resume</title>
+      <link>/resume/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>/resume/</guid>
+      <description>Life Objective To be the most proficient I can be and to continue learning in any setting. Gaining experience is a limitless virtue that I want to achieve throughout my career endlessly.
+ Skills • Bilingual: fully proficient in English and Spanish • Proficient in RStudio programming • Proficient in Python programming • Spanish tutor for local high school students in my hometown, Katy, TX • Extensive knowledge on Windows and macOS, can operate either operating system at the fullest • Detail-oriented, leader, intuitive, flexible and communicative • Team-leadership and team bonding skills obtained from group interactions throughout high school and college • Fast learner, can adapt to new surroundings at ease and establish connections quickly</description>
     </item>
     
   </channel>

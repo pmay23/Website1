@@ -11,7 +11,7 @@
         <h3>Biology, art and fashion are the three things that make me the happiest.</h3>
         <h3>Take a peek at some of my working <a href="{{ .Site.BaseURL }}projects/"> projects</a>.</h3>
         <h3>For more check out my academic &amp; professional <a href="resume.pdf" target="_blank">resume</a>.</h3>
-        <h3>Contact me at <a href="http://twitter.com/{{ .Site.Params.Social.Twitter }}">@{{ .Site.Params.Social.Twitter }}</a> or by <a href="mailto:{{ .Site.Params.Social.Email }}">email</a>.</h3>
+        <h3>You can reach out to me via email at <a href="mailto:{{ .Site.Params.Social.Email }}">pmay@utexas.edu</a>.</h3>
         {{ partial "social.html" . }}
         </div>
       </section>

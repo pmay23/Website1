@@ -1,0 +1,26 @@
+---
+title: Python Blog Post
+author: Paula Achang
+date: '2020-05-13'
+slug: python-blog-post
+categories: []
+tags: []
+description: ![](/side-1.jpg)
+---
+
+
+
+<p>This is a brief exchange between Python and R code.</p>
+<pre class="python"><code># Python code
+list=[&#39;10&#39;, &#39;27&#39;, &#39;4&#39;, &#39;23&#39;]
+
+list[2]</code></pre>
+<pre><code>## &#39;4&#39;</code></pre>
+<pre class="r"><code># R code
+library(reticulate)
+py$list</code></pre>
+<pre><code>## [1] &quot;10&quot; &quot;27&quot; &quot;4&quot;  &quot;23&quot;</code></pre>
+<pre class="r"><code>list &lt;- py$list
+
+print(list[2])</code></pre>
+<pre><code>## [1] &quot;27&quot;</code></pre>

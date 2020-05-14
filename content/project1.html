@@ -1,0 +1,267 @@
+---
+title: "project1"
+output: html_document
+author: Paula Achang
+UTeid: pa7846
+---
+
+
+
+<div id="intro" class="section level1">
+<h1>Intro</h1>
+<p>For Project 1, I have chosen to split a single dataset in two. The original dataset is called “insurance” obtained from the website Kaggle (source: <a href="https://www.kaggle.com/mirichoi0218/insurance" class="uri">https://www.kaggle.com/mirichoi0218/insurance</a>). The data is obtained from a random sample of individuals in the U.S. It contains 3 categorical variables: sex, smoker, and region, and 4 numerical variables: age, bmi, children, and charges. I split the dataset into two separate datasets and re-joined them again using dplyr functions. They were interesting to me because we can observe how different factors such as age, sex, region in the US, and bmi are correlated with insurance monetary charges. Utilizing this information, correlations can be made about insurance costs increasing as age increases, or insurance costs increasing with higher BMI ranges. Potential associations between each variables are many, such as smoker status and number of children, BMI and smoker status, sex and BMI, and more. Ultimately this is why I chose this dataset, because the variables are flexible and can be interpreted in useful ways.</p>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>## ── Attaching packages ──────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
+<pre><code>## ✓ ggplot2 3.3.0     ✓ purrr   0.3.3
+## ✓ tibble  2.1.3     ✓ stringr 1.4.0
+## ✓ tidyr   1.0.2     ✓ forcats 0.5.0
+## ✓ readr   1.3.1</code></pre>
+<pre><code>## ── Conflicts ─────────────────────────────────────────── tidyverse_conflicts() ──
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()</code></pre>
+<pre class="r"><code>library(ggplot2)
+
+age_children_smoker_region_charges &lt;- read.csv(&quot;/Users/paulaachang/Desktop/R/age_children_smoker_region_charges.csv&quot;)
+age_sex_bmi &lt;- read.csv(&quot;/Users/paulaachang/Desktop/R/age-sex-bmi.csv&quot;)
+children_smoker_region_charges &lt;- read.csv(&quot;/Users/paulaachang/Desktop/R/children-smoker-region-charges.csv&quot;)</code></pre>
+</div>
+<div id="tidying" class="section level1">
+<h1>Tidying</h1>
+<p>I separated through excel the “insurance” dataset and converted them into “age_sex_bmi” and “children_smoker_region_charges” datasets.</p>
+<p>I utilized pivot_wider to spread out “age_sex_bmi” dataset, and then pivot_longer to compile it back together. The same process was repeated for the “children_smoker_region_charges” dataset and in the same order.</p>
+<pre class="r"><code>age_sex_bmi %&gt;% group_by(sex) %&gt;% mutate(row = row_number())%&gt;%pivot_wider(names_from = sex, values_from = bmi) %&gt;% select(-row)%&gt;% replace(is.na(.), 0)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 1,323
+## Variables: 3
+## $ age    &lt;int&gt; 19, 18, 28, 33, 32, 31, 46, 37, 37, 60, 25, 62, 23, 56, 27, 19…
+## $ female &lt;dbl&gt; 27.900, 0.000, 0.000, 0.000, 0.000, 25.740, 33.440, 27.740, 0.…
+## $ male   &lt;dbl&gt; 0.000, 33.770, 33.000, 22.705, 28.880, 0.000, 0.000, 0.000, 29…</code></pre>
+<pre class="r"><code>wide_asb &lt;- age_sex_bmi %&gt;% group_by(sex) %&gt;% mutate(row = row_number()) %&gt;% tidyr::pivot_wider(names_from = sex, values_from = bmi) %&gt;% select(-row)%&gt;% replace(is.na(.), 0)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 1,323
+## Variables: 3
+## $ age    &lt;int&gt; 19, 18, 28, 33, 32, 31, 46, 37, 37, 60, 25, 62, 23, 56, 27, 19…
+## $ female &lt;dbl&gt; 27.900, 0.000, 0.000, 0.000, 0.000, 25.740, 33.440, 27.740, 0.…
+## $ male   &lt;dbl&gt; 0.000, 33.770, 33.000, 22.705, 28.880, 0.000, 0.000, 0.000, 29…</code></pre>
+<pre class="r"><code>gather_asb &lt;- wide_asb %&gt;% pivot_longer(c(&quot;female&quot;, &quot;male&quot;), names_to = &quot;sex&quot;, values_to = &quot;bmi&quot;)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 2,646
+## Variables: 3
+## $ age &lt;int&gt; 19, 19, 18, 18, 28, 28, 33, 33, 32, 32, 31, 31, 46, 46, 37, 37, 3…
+## $ sex &lt;chr&gt; &quot;female&quot;, &quot;male&quot;, &quot;female&quot;, &quot;male&quot;, &quot;female&quot;, &quot;male&quot;, &quot;female&quot;, &quot;…
+## $ bmi &lt;dbl&gt; 27.900, 0.000, 0.000, 33.770, 0.000, 33.000, 0.000, 22.705, 0.000…</code></pre>
+<pre class="r"><code>children_smoker_region_charges %&gt;% group_by(region) %&gt;% mutate(row = row_number()) %&gt;% tidyr::pivot_wider(names_from = region, values_from = charges) %&gt;% select(-row)%&gt;% replace(is.na(.), 0)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 1,027
+## Variables: 6
+## $ children  &lt;int&gt; 0, 1, 3, 0, 0, 0, 1, 3, 2, 0, 0, 0, 0, 1, 0, 1, 0, 1, 2, 3,…
+## $ smoker    &lt;fct&gt; yes, no, no, no, no, no, no, no, no, no, yes, no, yes, no, …
+## $ southwest &lt;dbl&gt; 16884.924, 0.000, 0.000, 0.000, 1826.843, 0.000, 0.000, 0.0…
+## $ southeast &lt;dbl&gt; 0.000, 1725.552, 4449.462, 0.000, 0.000, 3756.622, 8240.590…
+## $ northwest &lt;dbl&gt; 0.000, 0.000, 0.000, 21984.471, 3866.855, 0.000, 0.000, 728…
+## $ northeast &lt;dbl&gt; 0.000, 0.000, 0.000, 0.000, 2721.321, 0.000, 0.000, 0.000, …</code></pre>
+<pre class="r"><code>wide_cs &lt;- children_smoker_region_charges %&gt;% group_by(region) %&gt;% mutate(row = row_number()) %&gt;% tidyr::pivot_wider(names_from = region, values_from = charges) %&gt;% select(-row)%&gt;% replace(is.na(.), 0)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 1,027
+## Variables: 6
+## $ children  &lt;int&gt; 0, 1, 3, 0, 0, 0, 1, 3, 2, 0, 0, 0, 0, 1, 0, 1, 0, 1, 2, 3,…
+## $ smoker    &lt;fct&gt; yes, no, no, no, no, no, no, no, no, no, yes, no, yes, no, …
+## $ southwest &lt;dbl&gt; 16884.924, 0.000, 0.000, 0.000, 1826.843, 0.000, 0.000, 0.0…
+## $ southeast &lt;dbl&gt; 0.000, 1725.552, 4449.462, 0.000, 0.000, 3756.622, 8240.590…
+## $ northwest &lt;dbl&gt; 0.000, 0.000, 0.000, 21984.471, 3866.855, 0.000, 0.000, 728…
+## $ northeast &lt;dbl&gt; 0.000, 0.000, 0.000, 0.000, 2721.321, 0.000, 0.000, 0.000, …</code></pre>
+<pre class="r"><code>gather_cs &lt;- wide_cs %&gt;% pivot_longer(c(&quot;southwest&quot;, &quot;southeast&quot;, &quot;northwest&quot;, &quot;northeast&quot;), names_to = &quot;region&quot;, values_to = &quot;charges&quot;)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 4,108
+## Variables: 4
+## $ children &lt;int&gt; 0, 0, 0, 0, 1, 1, 1, 1, 3, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ smoker   &lt;fct&gt; yes, yes, yes, yes, no, no, no, no, no, no, no, no, no, no, …
+## $ region   &lt;chr&gt; &quot;southwest&quot;, &quot;southeast&quot;, &quot;northwest&quot;, &quot;northeast&quot;, &quot;southwe…
+## $ charges  &lt;dbl&gt; 16884.924, 0.000, 0.000, 0.000, 0.000, 1725.552, 0.000, 0.00…</code></pre>
+</div>
+<div id="joiningmerging-inner_join" class="section level1">
+<h1>Joining/Merging: inner_join</h1>
+<p>I chose inner_join to merge “age_sex_bmi” and “children_smoker_region_charges” because it excluded rows and columns where values did not match.</p>
+<pre class="r"><code>insurance &lt;- age_sex_bmi %&gt;% inner_join(age_children_smoker_region_charges)%&gt;%glimpse()</code></pre>
+<pre><code>## Joining, by = &quot;age&quot;</code></pre>
+<pre><code>## Observations: 41,600
+## Variables: 7
+## $ age      &lt;int&gt; 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, …
+## $ sex      &lt;fct&gt; female, female, female, female, female, female, female, fema…
+## $ bmi      &lt;dbl&gt; 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, …
+## $ children &lt;int&gt; 0, 1, 5, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 2, …
+## $ smoker   &lt;fct&gt; yes, no, no, no, no, no, yes, no, no, no, no, no, no, yes, n…
+## $ region   &lt;fct&gt; southwest, southwest, southwest, northwest, southwest, south…
+## $ charges  &lt;dbl&gt; 16884.924, 1837.237, 4687.797, 1625.434, 1743.214, 2331.519,…</code></pre>
+</div>
+<div id="wrangling" class="section level1">
+<h1>Wrangling</h1>
+<p>Six core dplyr functions:</p>
+<pre class="r"><code># filter:
+insurance %&gt;% filter(sex==&quot;female&quot;)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 20,498
+## Variables: 7
+## $ age      &lt;int&gt; 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, …
+## $ sex      &lt;fct&gt; female, female, female, female, female, female, female, fema…
+## $ bmi      &lt;dbl&gt; 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, …
+## $ children &lt;int&gt; 0, 1, 5, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 2, …
+## $ smoker   &lt;fct&gt; yes, no, no, no, no, no, yes, no, no, no, no, no, no, yes, n…
+## $ region   &lt;fct&gt; southwest, southwest, southwest, northwest, southwest, south…
+## $ charges  &lt;dbl&gt; 16884.924, 1837.237, 4687.797, 1625.434, 1743.214, 2331.519,…</code></pre>
+<pre class="r"><code># select: 
+insurance %&gt;% select(smoker, charges)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 41,600
+## Variables: 2
+## $ smoker  &lt;fct&gt; yes, no, no, no, no, no, yes, no, no, no, no, no, no, yes, no…
+## $ charges &lt;dbl&gt; 16884.924, 1837.237, 4687.797, 1625.434, 1743.214, 2331.519, …</code></pre>
+<pre class="r"><code># arrange: 
+insurance %&gt;% arrange(desc(charges))%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 41,600
+## Variables: 7
+## $ age      &lt;int&gt; 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, 54, …
+## $ sex      &lt;fct&gt; female, male, female, male, male, male, male, male, male, ma…
+## $ bmi      &lt;dbl&gt; 30.800, 33.630, 31.900, 39.600, 29.200, 30.020, 34.210, 40.5…
+## $ children &lt;int&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, …
+## $ smoker   &lt;fct&gt; yes, yes, yes, yes, yes, yes, yes, yes, yes, yes, yes, yes, …
+## $ region   &lt;fct&gt; southeast, southeast, southeast, southeast, southeast, south…
+## $ charges  &lt;dbl&gt; 63770.43, 63770.43, 63770.43, 63770.43, 63770.43, 63770.43, …</code></pre>
+<pre class="r"><code># group_by: 
+insurance %&gt;% group_by(sex)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 41,600
+## Variables: 7
+## Groups: sex [2]
+## $ age      &lt;int&gt; 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, …
+## $ sex      &lt;fct&gt; female, female, female, female, female, female, female, fema…
+## $ bmi      &lt;dbl&gt; 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, …
+## $ children &lt;int&gt; 0, 1, 5, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 2, …
+## $ smoker   &lt;fct&gt; yes, no, no, no, no, no, yes, no, no, no, no, no, no, yes, n…
+## $ region   &lt;fct&gt; southwest, southwest, southwest, northwest, southwest, south…
+## $ charges  &lt;dbl&gt; 16884.924, 1837.237, 4687.797, 1625.434, 1743.214, 2331.519,…</code></pre>
+<pre class="r"><code># mutate: 
+insurance %&gt;% mutate(bmi_range = case_when(bmi&gt;30 ~ &quot;obese&quot;, bmi&lt;18.5 ~ &quot;underweight&quot;, 18.6&lt;=bmi &amp; bmi&lt;=24.9 ~ &quot;normal&quot;, 25&lt;=bmi &amp; bmi&lt;=29.9 ~ &quot;overweight&quot;))%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 41,600
+## Variables: 8
+## $ age       &lt;int&gt; 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19,…
+## $ sex       &lt;fct&gt; female, female, female, female, female, female, female, fem…
+## $ bmi       &lt;dbl&gt; 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9, 27.9,…
+## $ children  &lt;int&gt; 0, 1, 5, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 2,…
+## $ smoker    &lt;fct&gt; yes, no, no, no, no, no, yes, no, no, no, no, no, no, yes, …
+## $ region    &lt;fct&gt; southwest, southwest, southwest, northwest, southwest, sout…
+## $ charges   &lt;dbl&gt; 16884.924, 1837.237, 4687.797, 1625.434, 1743.214, 2331.519…
+## $ bmi_range &lt;chr&gt; &quot;overweight&quot;, &quot;overweight&quot;, &quot;overweight&quot;, &quot;overweight&quot;, &quot;ov…</code></pre>
+<pre class="r"><code># summarize: 
+newinsurance &lt;- insurance %&gt;% mutate(bmi_range = case_when(bmi&gt;30 ~ &quot;obese&quot;, bmi&lt;18.5 ~ &quot;underweight&quot;, 18.6&lt;=bmi &amp; bmi&lt;=24.9 ~ &quot;normal&quot;, 25&lt;=bmi &amp; bmi&lt;=29.9 ~ &quot;overweight&quot;))
+newinsurance %&gt;% group_by(bmi_range) %&gt;% summarize(mean_bmi=mean(bmi, na.rm=T))%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 5
+## Variables: 2
+## $ bmi_range &lt;chr&gt; &quot;normal&quot;, &quot;obese&quot;, &quot;overweight&quot;, &quot;underweight&quot;, NA
+## $ mean_bmi  &lt;dbl&gt; 22.52735, 35.25010, 27.53493, 17.45841, 28.15942</code></pre>
+<pre class="r"><code># Summary statistics using numeric variables: age, bmi, charges 
+sd(newinsurance$bmi, na.rm=T)%&gt;%glimpse()</code></pre>
+<pre><code>##  num 6.17</code></pre>
+<pre class="r"><code>var(newinsurance$charges)%&gt;%glimpse()</code></pre>
+<pre><code>##  num 1.46e+08</code></pre>
+<pre class="r"><code>quantile(newinsurance$age)%&gt;%glimpse()</code></pre>
+<pre><code>##  Named num [1:5] 18 21 35 49 64
+##  - attr(*, &quot;names&quot;)= chr [1:5] &quot;0%&quot; &quot;25%&quot; &quot;50%&quot; &quot;75%&quot; ...</code></pre>
+<pre class="r"><code>min(newinsurance$bmi)%&gt;%glimpse()</code></pre>
+<pre><code>##  num 16</code></pre>
+<pre class="r"><code>max(newinsurance$charges)%&gt;%glimpse()</code></pre>
+<pre><code>##  num 63770</code></pre>
+<pre class="r"><code>newinsurance%&gt;%n_distinct(newinsurance$age)%&gt;%glimpse()</code></pre>
+<pre><code>##  int 40771</code></pre>
+<pre class="r"><code>aggregate(newinsurance$bmi, by = list(Region = newinsurance$region), mean)%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 4
+## Variables: 2
+## $ Region &lt;fct&gt; northeast, northwest, southeast, southwest
+## $ x      &lt;dbl&gt; 30.83441, 30.25290, 30.82214, 30.27406</code></pre>
+<pre class="r"><code>newinsurance %&gt;% group_by(charges) %&gt;% summarize(mean_age=mean(age, na.rm=T))%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 1,337
+## Variables: 2
+## $ charges  &lt;dbl&gt; 1121.874, 1131.507, 1135.941, 1136.399, 1137.011, 1137.470, …
+## $ mean_age &lt;dbl&gt; 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19, …</code></pre>
+<pre class="r"><code>newinsurance%&gt;% group_by(bmi) %&gt;% summarize(n())%&gt;%glimpse()</code></pre>
+<pre><code>## Observations: 548
+## Variables: 2
+## $ bmi   &lt;dbl&gt; 15.960, 16.815, 17.195, 17.290, 17.385, 17.400, 17.480, 17.670,…
+## $ `n()` &lt;int&gt; 69, 53, 28, 122, 28, 28, 68, 28, 26, 68, 25, 28, 29, 25, 78, 26…</code></pre>
+<pre class="r"><code># Summary statistics using categorical variables: 
+newinsurance %&gt;% group_by(region) %&gt;% summarize(mean_age=mean(age, na.rm=T))</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   region    mean_age
+##   &lt;fct&gt;        &lt;dbl&gt;
+## 1 northeast     36.1
+## 2 northwest     36.1
+## 3 southeast     35.6
+## 4 southwest     36.5</code></pre>
+<pre class="r"><code>newinsurance %&gt;% group_by(sex, bmi_range) %&gt;% summarize(mean_age=mean(age, na.rm=T)) %&gt;% na.omit()</code></pre>
+<pre><code>## # A tibble: 8 x 3
+## # Groups:   sex [2]
+##   sex    bmi_range   mean_age
+##   &lt;fct&gt;  &lt;chr&gt;          &lt;dbl&gt;
+## 1 female normal          34.1
+## 2 female obese           36.8
+## 3 female overweight      37.2
+## 4 female underweight     32.4
+## 5 male   normal          33.1
+## 6 male   obese           37.4
+## 7 male   overweight      35.0
+## 8 male   underweight     25.0</code></pre>
+<pre class="r"><code>newinsurance%&gt;% group_by(smoker)%&gt;% summarize(mean_age=mean(age))</code></pre>
+<pre><code>## # A tibble: 2 x 2
+##   smoker mean_age
+##   &lt;fct&gt;     &lt;dbl&gt;
+## 1 no         36.3
+## 2 yes        35.3</code></pre>
+<pre class="r"><code>#Grouping by 3 categorical variables simultaneously (BMI_range, sex, region):
+newinsurance %&gt;% group_by(bmi_range, sex, region) %&gt;% summarize(mean_bmi=mean(bmi, na.rm=T))</code></pre>
+<pre><code>## # A tibble: 40 x 4
+## # Groups:   bmi_range, sex [10]
+##    bmi_range sex    region    mean_bmi
+##    &lt;chr&gt;     &lt;fct&gt;  &lt;fct&gt;        &lt;dbl&gt;
+##  1 normal    female northeast     22.6
+##  2 normal    female northwest     22.6
+##  3 normal    female southeast     22.6
+##  4 normal    female southwest     22.6
+##  5 normal    male   northeast     22.7
+##  6 normal    male   northwest     22.2
+##  7 normal    male   southeast     22.7
+##  8 normal    male   southwest     22.3
+##  9 obese     female northeast     35.4
+## 10 obese     female northwest     35.0
+## # … with 30 more rows</code></pre>
+<pre class="r"><code>#Correlation matrix:
+newinsurance %&gt;% select_if(is.numeric) %&gt;% na.omit %&gt;%cor%&gt;%t</code></pre>
+<pre><code>##                age         bmi    children    charges
+## age      1.0000000 0.102851902 0.139495034 0.30419972
+## bmi      0.1028519 1.000000000 0.007505988 0.03152202
+## children 0.1394950 0.007505988 1.000000000 0.09284062
+## charges  0.3041997 0.031522021 0.092840616 1.00000000</code></pre>
+<pre class="r"><code>#Results: For &quot;age&quot;, median age is 35, max 64, min 18. For &quot;BMI&quot;, mediam BMI is 30.25, max 53.13, and min 15.96. For &quot;charges&quot;, min was $1,122, mean was $12,514 and max $63,770 for this dataset. </code></pre>
+</div>
+<div id="visualization" class="section level1">
+<h1>Visualization</h1>
+<pre class="r"><code># Plot 1: correlation heatmap of numeric variables (age, bmi, charges)
+numerics &lt;- newinsurance %&gt;% select_if(is.numeric) %&gt;% select(-children)
+correlation &lt;- cor(numerics) %&gt;% as.data.frame %&gt;% rownames_to_column %&gt;% pivot_longer(-1)
+correlation %&gt;% ggplot(aes(rowname, name, fill=value)) + geom_tile()+geom_text(aes(label=round(value, 2))) + xlab(&quot;&quot;) + ylab(&quot;&quot;)+ scale_fill_gradient2(low=&quot;red&quot;, high=&quot;blue&quot;)</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code># Explanation: We can observe the three variables age, bmi, and charges being plotted against each other in a correlation map. The highest correlations are against the same variables, for example age vs age and charges vs charges. However, we see important differences in the correlation between age and charges (0.3) which is relatively high, compared to bmi and charges (0.03). This is observing the fact that as age increases, charges typically increase as well. Body mass index and charges have a low correlation of 0.03 because body mass index is usually not a good estimator of the amount of insurance charges, therefore are unrelated. Age and BMI have a slightly higher correlation (0.1), higher than the previous comparison, because typically, BMI increases as age increases, so a slight positive correlation is observed in this dataset. None of these correlations are negative, implying that as one variable increases, another decreases. They are all positive correlations and varying in their strength, which the colours from the legend can describe. 
+
+# Plot2
+ggplot(newinsurance, aes(x=smoker, y=charges, fill=sex))+geom_bar(stat=&quot;identity&quot;, outlier.shape=NA)</code></pre>
+<pre><code>## Warning: Ignoring unknown parameters: outlier.shape</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code># This barplot observes three variables, smoker status in the x-axis, cost of insurance in the y-axis, and sex. From the population included in this dataset, we can deduce that smokers incur higher insurance costs than non-smokers, and males typically also incur higher insurance costs. 
+# Plot 3
+newinsurance %&gt;% ggplot(aes(age, charges, color=&quot;pink&quot;)) + geom_bar(stat=&quot;summary&quot;)+ facet_wrap(~region) + scale_x_continuous()</code></pre>
+<pre><code>## No summary function supplied, defaulting to `mean_se()`
+## No summary function supplied, defaulting to `mean_se()`
+## No summary function supplied, defaulting to `mean_se()`
+## No summary function supplied, defaulting to `mean_se()`</code></pre>
+<p><img src="/project1_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+<pre class="r"><code># This plot observes three variables simultaneously: age, charges, and region. Each individual square observes the trend of age vs. charges in that particular region. Overall, most people experience increase in insurance charges with age, but we can also observe how younger individuals in southeastern states in the US have higher charges than the other regions. Individuals included in the study from southwestern region in the U.S. observe lower insurance charges, on average. </code></pre>
+</div>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Porfolio</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on Porfolio</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-US</language>
+    <lastBuildDate>Thu, 14 May 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>About</title>
+      <link>/2020/05/14/about/</link>
+      <pubDate>Thu, 14 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/05/14/about/</guid>
+      <description>Here’s a little bit about my background.
+I was born and raised in Maracaibo, Venezuela. Now as a 23-yr old American dual citizen, I am grateful to have lived and experienced two different worlds and two completely different life experiences. I miss my home country deeply, but America opened its doors to me and my family as Venezuelan immigrants and it has become my 2nd home. Although it has not been easy to be away from family, I have learned that the best gift that came from moving is meeting new people that can change your life for the best.</description>
+    </item>
+    
+    <item>
+      <title>Python Blog Post</title>
+      <link>/2020/05/13/python-blog-post/</link>
+      <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/05/13/python-blog-post/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
