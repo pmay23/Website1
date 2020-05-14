@@ -1,0 +1,235 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "Paula Achang (pa7846)"
+date: "04/23/2020"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(fig.align="center", fig.height=5, message=FALSE, warning=FALSE, fig.width=8, tidy.opts=list(width.cutoff=60),tidy=TRUE)
+
+class_diag<-function(probs,truth){
+  
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")), truth)
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup<-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR<-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  
+  n <- length(TPR)
+  auc<- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,auc)
+}
+
+class_diag
+
+library(knitr)
+hook_output = knit_hooks$get('output')
+knit_hooks$set(output = function(x, options) {
+  
+  if (!is.null(n <- options$linewidth)) {
+    x = knitr:::split_lines(x)
+
+    if (any(nchar(x) > n)) x = strwrap(x, width = n)
+    x = paste(x, collapse = '\n')
+  }
+  hook_output(x, options)
+})
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE,fig.align="center",warning=FALSE,message=FALSE,fig.width=8, fig.height=5, linewidth=60)
+options(tibble.width = 100,width = 100)
+library(tidyverse)
+```
+
+###Intro 
+
+```{R}
+library(tidyverse)
+library(Ecdat)
+library(dplyr)
+doc <- DoctorContacts
+doc <- select(DoctorContacts, -c(lc, idp, lpi, fmde, physlim, linc, lfam, sex, black))
+doc <- doc[-(361:20186),]
+```
+
+
+#The dataset I obtained comes from the source https://vincentarelbundock.github.io/Rdatasets/datasets.html. It observes the number of outpatient visits to a medical doctor across different variables. "Health" indicates the health of an individual, poor, fair, good, and excellent. The variable "ndisease" indicates the number of chronic diseases an individual has, "educdec" shows the years of schooling of the head of the household, "child" represents whether that person is over 18 (1=True, 0=False), ages of the individuals, and lastly "mdu" is the number of outpation visits to a medical doctor. A total of 360 observations across 6 variables. I shortened the original dataset to contain only 6 variables and 360 observations for simplicity reasons, although this directly impacts data  as a whole. 
+
+
+###MANOVA 
+
+```{R}
+man1<-manova(cbind(ndisease, educdec, age)~health, data=doc)
+summary.aov(man1)
+
+doc%>%group_by(health)%>%summarize(mean(ndisease), mean(educdec), mean(age))
+pairwise.t.test(doc$ndisease, doc$health, p.adj="bonf")
+pairwise.t.test(doc$educdec, doc$health, p.adj="bonf")
+pairwise.t.test(doc$age, doc$health, p.adj="bonf")
+```
+
+
+
+# According to p-values of each variable from MANOVA, all of the numeric variables show significance when grouped by the categorical variable "health". I performed 3 different tests: manova, univariative ANOVAs and post-hoc t.tests. The p-values indicate that number of chronic diseases and individual has, the years of education, and the age of the individual are significant across different levels of health. 
+
+###Randomization
+
+# null hypotheses: means of 2 variables, "child" and "number of outpatient doctor visits" are NOT significally different 
+
+# alternative hypotheses: means of 2 variables, "child" and "number of outpatient doctor visits" ARE significantly different 
+
+```{R}
+t.test(data=doc, mdu~child)
+
+doc%>%group_by(child)%>%summarize(s=sd(mdu))%>%summarize(diff(s))
+
+rand_dist<-vector()
+
+for(i in 1:5000){ 
+new<-data.frame(mdu=sample(doc$mdu),child=doc$child) 
+rand_dist[i]<-sd(new[new$child=="TRUE",]$mdu)-
+              sd(new[new$child=="FALSE",]$mdu)
+}
+
+mean(rand_dist < -5.36 | rand_dist > 5.36)
+
+library(ggplot2)
+
+ggplot(doc, aes(mdu, fill=child))+geom_histogram(bins=6.5)+facet_wrap(~child, ncol=NULL)
+```
+
+
+# Results: According to Welch two sample t-test, when comparing the variables "mdu" and "child" the p-value shows a significant result of 0.000682, meaning that there is a correlation between the number of outpatient doctor visits and being an adult over 18 years old. The ggplot model demonstrated that adults over 18 are more likely to frequent an outpatient doctor's office than individuals under 18. 
+
+### Linear Regression Model
+
+```{R}
+
+library(sandwich)
+library(lmtest)
+doc$mdu_c<- doc$mdu-mean(doc$mdu)
+doc$ndisease_c <- doc$ndisease-mean(doc$ndisease)
+doc$educdec_c <- doc$educdec-mean(doc$educdec)
+
+
+fit <- lm(mdu_c~educdec_c*ndisease_c, data=doc)
+summary(fit)
+bptest(fit)
+
+coeftest(fit, vcov=vcovHC(fit))[,1:2]
+
+resids <- fit$residuals
+fitvals<-fit$fitted.values
+
+ggplot()+geom_histogram(aes(resids), bins=30)
+
+ggplot(doc, aes(x=mdu, y=ndisease,group=health))+geom_point(aes(color=health))+ geom_smooth(method="lm",formula=y~1,se=F,fullrange=T,aes(color=health))+
+theme(legend.position=c(.9,.19))+xlab("")
+
+exp(coef(fit))
+```
+
+
+# Coefficient estimates interpretations: controlling for all other variables, for every additional year in "age", the odds of having more doctors visits increases by a factor of 1.047. For every additional chronic disease in "ndisease", the odds of having more doctor visits increases by a factor of 0.9375. Surprisingly, with more years of education "educdec", the number of doctor visits increase by a factor of 0.941. There were no significant changes in robust standard errors after performing test. 
+
+### Bootstrapped SEs
+```{R}
+boot_dat <- sample_frac(doc, replace=T)
+
+samp_distn <- replicate(5000, {
+boot_dat <- sample_frac(doc, replace=T)
+fit <- lm(mdu_c~health*ndisease_c, data=boot_dat)
+coef(fit)
+}) 
+```
+
+#I observed no changes in SEs and p-values compared to the original SEs and robust SEs. 
+
+### Logistic Regression 
+```{R}
+library(tidyverse)
+library(lmtest)
+library(dplyr)
+
+doc <- doc%>%mutate(y=ifelse(doc$child=="TRUE", 1,0))
+
+fit3 <- glm(child~mdu*ndisease, data=doc, family="binomial")
+coeftest(fit3)
+
+
+probs<-predict(fit3, type="response")
+table(predict=as.numeric(probs>.5, 1, 0), truth=doc$y)%>%addmargins
+
+doc$logit <- predict(fit3, type="link")
+
+doc%>%ggplot(aes(logit,color=child, fill=(child)))+geom_density(alpha=.4)+theme(legend.position=c(.85, .85))+geom_vline(xintercept=0)+xlab("predictor(logit)")
+
+library(plotROC)
+library(pROC)
+
+ROCplot <- ggplot(doc)+geom_roc(aes(d=y, m=probs), n.cuts=0)
+ROCplot
+calc_auc(ROCplot)
+
+probs<-predict(fit3, type="response")
+class_diag(probs, doc$health)
+```
+
+# Coefficient estimates for "mdu" was 0.016, for "ndisease" -0.0168, and the interaction between both was -0.0065. According to the matrix, Accuracy: 0.422, Sensitivity: 0.0437, Specificity: 0.929, Precision: 0.421, and AUC 0.361. The true positive rate was 0.422, a rather low value. 
+
+
+### Lasso
+
+```{R}
+
+library(glmnet)
+y<-as.matrix(doc$y)
+x<-model.matrix(health~., data=doc)[,-1]
+cv<-cv.glmnet(x,y, family="binomial")
+lasso<-glmnet(x,y, family="binomial", lambda=cv$lambda.1se)
+coef(lasso)
+
+set.seed(1234)
+k=10 
+
+data<-doc[sample(nrow(doc)),]  
+folds<-cut(seq(1:nrow(doc)),breaks=k,labels=F)  
+
+diags<-NULL 
+for(i in 1:k){
+  
+train<-data[folds!=i,] 
+test<-data[folds==i,]
+truth<-test$child
+  
+fit<-glm(child~(.)^2,data=train,family="binomial") 
+probs<-predict(fit,newdata = test,type="response")
+  
+diags<-rbind(diags,class_diag(probs,truth)) 
+}
+
+summarize_all(diags, mean)
+
+```
+
