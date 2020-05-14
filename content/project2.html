@@ -1,0 +1,297 @@
+---
+title: 'Project 2: Modeling, Testing, and Predicting'
+author: "Paula Achang (pa7846)"
+date: "04/23/2020"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float:
+      collapsed: no
+      smooth_scroll: yes
+---
+
+
+
+<p>###Intro</p>
+<pre class="r"><code>library(tidyverse)
+library(Ecdat)
+library(dplyr)
+doc &lt;- DoctorContacts
+doc &lt;- select(DoctorContacts, -c(lc, idp, lpi, fmde, physlim, linc, lfam, sex, black))
+doc &lt;- doc[-(361:20186),]</code></pre>
+<p>#The dataset I obtained comes from the source <a href="https://vincentarelbundock.github.io/Rdatasets/datasets.html" class="uri">https://vincentarelbundock.github.io/Rdatasets/datasets.html</a>. It observes the number of outpatient visits to a medical doctor across different variables. “Health” indicates the health of an individual, poor, fair, good, and excellent. The variable “ndisease” indicates the number of chronic diseases an individual has, “educdec” shows the years of schooling of the head of the household, “child” represents whether that person is over 18 (1=True, 0=False), ages of the individuals, and lastly “mdu” is the number of outpation visits to a medical doctor. A total of 360 observations across 6 variables. I shortened the original dataset to contain only 6 variables and 360 observations for simplicity reasons, although this directly impacts data as a whole.</p>
+<p>###MANOVA</p>
+<pre class="r"><code>man1&lt;-manova(cbind(ndisease, educdec, age)~health, data=doc)
+summary.aov(man1)</code></pre>
+<pre><code>## Response ndisease :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## health 3 1100.2 366.73 8.2138 2.673e-05 ***
+## Residuals 356 15894.6 44.65
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response educdec :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## health 3 104.35 34.782 8.988 9.41e-06 ***
+## Residuals 356 1377.65 3.870
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1
+##
+## Response age :
+## Df Sum Sq Mean Sq F value Pr(&gt;F)
+## health 3 11979 3992.9 15.211 2.465e-09 ***
+## Residuals 356 93448 262.5
+## ---
+## Signif. codes: 0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1
+&#39; &#39; 1</code></pre>
+<pre class="r"><code>doc%&gt;%group_by(health)%&gt;%summarize(mean(ndisease), mean(educdec), mean(age))</code></pre>
+<pre><code>## # A tibble: 4 x 4
+##   health    `mean(ndisease)` `mean(educdec)` `mean(age)`
+##   &lt;fct&gt;                &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;
+## 1 excellent             11.9            12.6        24.2
+## 2 good                  14.7            11.6        31.1
+## 3 fair                  18.5            11.1        48.9
+## 4 poor                  13.7            12          41.6</code></pre>
+<pre class="r"><code>pairwise.t.test(doc$ndisease, doc$health, p.adj=&quot;bonf&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  doc$ndisease and doc$health 
+## 
+##      excellent good    fair   
+## good 0.00071   -       -      
+## fair 0.00070   0.15077 -      
+## poor 1.00000   1.00000 0.96354
+## 
+## P value adjustment method: bonferroni</code></pre>
+<pre class="r"><code>pairwise.t.test(doc$educdec, doc$health, p.adj=&quot;bonf&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  doc$educdec and doc$health 
+## 
+##      excellent good fair
+## good 1.2e-05   -    -   
+## fair 0.02      1.00 -   
+## poor 1.00      1.00 1.00
+## 
+## P value adjustment method: bonferroni</code></pre>
+<pre class="r"><code>pairwise.t.test(doc$age, doc$health, p.adj=&quot;bonf&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  doc$age and doc$health 
+## 
+##      excellent good    fair   
+## good 0.00060   -       -      
+## fair 3.2e-08   0.00011 -      
+## poor 0.11230   0.93819 1.00000
+## 
+## P value adjustment method: bonferroni</code></pre>
+<div id="according-to-p-values-of-each-variable-from-manova-all-of-the-numeric-variables-show-significance-when-grouped-by-the-categorical-variable-health.-i-performed-3-different-tests-manova-univariative-anovas-and-post-hoc-t.tests.-the-p-values-indicate-that-number-of-chronic-diseases-and-individual-has-the-years-of-education-and-the-age-of-the-individual-are-significant-across-different-levels-of-health." class="section level1">
+<h1>According to p-values of each variable from MANOVA, all of the numeric variables show significance when grouped by the categorical variable “health”. I performed 3 different tests: manova, univariative ANOVAs and post-hoc t.tests. The p-values indicate that number of chronic diseases and individual has, the years of education, and the age of the individual are significant across different levels of health.</h1>
+<p>###Randomization</p>
+</div>
+<div id="null-hypotheses-means-of-2-variables-child-and-number-of-outpatient-doctor-visits-are-not-significally-different" class="section level1">
+<h1>null hypotheses: means of 2 variables, “child” and “number of outpatient doctor visits” are NOT significally different</h1>
+</div>
+<div id="alternative-hypotheses-means-of-2-variables-child-and-number-of-outpatient-doctor-visits-are-significantly-different" class="section level1">
+<h1>alternative hypotheses: means of 2 variables, “child” and “number of outpatient doctor visits” ARE significantly different</h1>
+<pre class="r"><code>t.test(data=doc, mdu~child)</code></pre>
+<pre><code>##
+## Welch Two Sample t-test
+##
+## data: mdu by child
+## t = 3.4307, df = 315.51, p-value = 0.000682
+## alternative hypothesis: true difference in means is not
+equal to 0
+## 95 percent confidence interval:
+## 0.9700147 3.5786416
+## sample estimates:
+## mean in group FALSE mean in group TRUE
+## 4.807175 2.532847</code></pre>
+<pre class="r"><code>doc%&gt;%group_by(child)%&gt;%summarize(s=sd(mdu))%&gt;%summarize(diff(s))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   `diff(s)`
+##       &lt;dbl&gt;
+## 1     -5.36</code></pre>
+<pre class="r"><code>rand_dist&lt;-vector()
+
+for(i in 1:5000){ 
+new&lt;-data.frame(mdu=sample(doc$mdu),child=doc$child) 
+rand_dist[i]&lt;-sd(new[new$child==&quot;TRUE&quot;,]$mdu)-
+              sd(new[new$child==&quot;FALSE&quot;,]$mdu)
+}
+
+mean(rand_dist &lt; -5.36 | rand_dist &gt; 5.36)</code></pre>
+<pre><code>## [1] 0.0302</code></pre>
+<pre class="r"><code>library(ggplot2)
+
+ggplot(doc, aes(mdu, fill=child))+geom_histogram(bins=6.5)+facet_wrap(~child, ncol=NULL)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-3-1.png" width="768" style="display: block; margin: auto;" /></p>
+</div>
+<div id="results-according-to-welch-two-sample-t-test-when-comparing-the-variables-mdu-and-child-the-p-value-shows-a-significant-result-of-0.000682-meaning-that-there-is-a-correlation-between-the-number-of-outpatient-doctor-visits-and-being-an-adult-over-18-years-old.-the-ggplot-model-demonstrated-that-adults-over-18-are-more-likely-to-frequent-an-outpatient-doctors-office-than-individuals-under-18." class="section level1">
+<h1>Results: According to Welch two sample t-test, when comparing the variables “mdu” and “child” the p-value shows a significant result of 0.000682, meaning that there is a correlation between the number of outpatient doctor visits and being an adult over 18 years old. The ggplot model demonstrated that adults over 18 are more likely to frequent an outpatient doctor’s office than individuals under 18.</h1>
+<div id="linear-regression-model" class="section level3">
+<h3>Linear Regression Model</h3>
+<pre class="r"><code>library(sandwich)
+library(lmtest)
+doc$mdu_c&lt;- doc$mdu-mean(doc$mdu)
+doc$ndisease_c &lt;- doc$ndisease-mean(doc$ndisease)
+doc$educdec_c &lt;- doc$educdec-mean(doc$educdec)
+
+
+fit &lt;- lm(mdu_c~educdec_c*ndisease_c, data=doc)
+summary(fit)</code></pre>
+<pre><code>##
+## Call:
+## lm(formula = mdu_c ~ educdec_c * ndisease_c, data = doc)
+##
+## Residuals:
+## Min 1Q Median 3Q Max
+## -5.499 -3.306 -1.939 0.081 64.838
+##
+## Coefficients:
+## Estimate Std. Error t value Pr(&gt;|t|)
+## (Intercept) -0.008374 0.390646 -0.021 0.983
+## educdec_c -0.110926 0.193373 -0.574 0.567
+## ndisease_c 0.062033 0.056829 1.092 0.276
+## educdec_c:ndisease_c -0.006728 0.031059 -0.217 0.829
+##
+## Residual standard error: 7.376 on 356 degrees of freedom
+## Multiple R-squared: 0.004704, Adjusted R-squared:
+-0.003683
+## F-statistic: 0.5609 on 3 and 356 DF, p-value: 0.6412</code></pre>
+<pre class="r"><code>bptest(fit)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit
+## BP = 1.2968, df = 3, p-value = 0.7299</code></pre>
+<pre class="r"><code>coeftest(fit, vcov=vcovHC(fit))[,1:2]</code></pre>
+<pre><code>##                          Estimate Std. Error
+## (Intercept)          -0.008374427 0.38521140
+## educdec_c            -0.110926051 0.20730839
+## ndisease_c            0.062033015 0.02946755
+## educdec_c:ndisease_c -0.006728150 0.02057320</code></pre>
+<pre class="r"><code>resids &lt;- fit$residuals
+fitvals&lt;-fit$fitted.values
+
+ggplot()+geom_histogram(aes(resids), bins=30)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-4-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(doc, aes(x=mdu, y=ndisease,group=health))+geom_point(aes(color=health))+ geom_smooth(method=&quot;lm&quot;,formula=y~1,se=F,fullrange=T,aes(color=health))+
+theme(legend.position=c(.9,.19))+xlab(&quot;&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-4-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>exp(coef(fit))</code></pre>
+<pre><code>## (Intercept) educdec_c ndisease_c educdec_c:ndisease_c
+## 0.9916605 0.8950049 1.0639975 0.9932944</code></pre>
+</div>
+</div>
+<div id="coefficient-estimates-interpretations-controlling-for-all-other-variables-for-every-additional-year-in-age-the-odds-of-having-more-doctors-visits-increases-by-a-factor-of-1.047.-for-every-additional-chronic-disease-in-ndisease-the-odds-of-having-more-doctor-visits-increases-by-a-factor-of-0.9375.-surprisingly-with-more-years-of-education-educdec-the-number-of-doctor-visits-increase-by-a-factor-of-0.941.-there-were-no-significant-changes-in-robust-standard-errors-after-performing-test." class="section level1">
+<h1>Coefficient estimates interpretations: controlling for all other variables, for every additional year in “age”, the odds of having more doctors visits increases by a factor of 1.047. For every additional chronic disease in “ndisease”, the odds of having more doctor visits increases by a factor of 0.9375. Surprisingly, with more years of education “educdec”, the number of doctor visits increase by a factor of 0.941. There were no significant changes in robust standard errors after performing test.</h1>
+<div id="bootstrapped-ses" class="section level3">
+<h3>Bootstrapped SEs</h3>
+<pre class="r"><code>boot_dat &lt;- sample_frac(doc, replace=T)
+
+samp_distn &lt;- replicate(5000, {
+boot_dat &lt;- sample_frac(doc, replace=T)
+fit &lt;- lm(mdu_c~health*ndisease_c, data=boot_dat)
+coef(fit)
+}) </code></pre>
+<p>#I observed no changes in SEs and p-values compared to the original SEs and robust SEs.</p>
+</div>
+<div id="logistic-regression" class="section level3">
+<h3>Logistic Regression</h3>
+<pre class="r"><code>library(tidyverse)
+library(lmtest)
+library(dplyr)
+
+doc &lt;- doc%&gt;%mutate(y=ifelse(doc$child==&quot;TRUE&quot;, 1,0))
+
+fit3 &lt;- glm(child~mdu*ndisease, data=doc, family=&quot;binomial&quot;)
+coeftest(fit3)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##                Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept)  -0.0121136  0.3309412 -0.0366   0.9708
+## mdu           0.0164641  0.0775841  0.2122   0.8319
+## ndisease     -0.0168170  0.0235014 -0.7156   0.4743
+## mdu:ndisease -0.0065578  0.0054889 -1.1947   0.2322</code></pre>
+<pre class="r"><code>probs&lt;-predict(fit3, type=&quot;response&quot;)
+table(predict=as.numeric(probs&gt;.5, 1, 0), truth=doc$y)%&gt;%addmargins</code></pre>
+<pre><code>##        truth
+## predict   0   1 Sum
+##     0   209 132 341
+##     1    14   5  19
+##     Sum 223 137 360</code></pre>
+<pre class="r"><code>doc$logit &lt;- predict(fit3, type=&quot;link&quot;)
+
+doc%&gt;%ggplot(aes(logit,color=child, fill=(child)))+geom_density(alpha=.4)+theme(legend.position=c(.85, .85))+geom_vline(xintercept=0)+xlab(&quot;predictor(logit)&quot;)</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-6-1.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(plotROC)
+library(pROC)
+
+ROCplot &lt;- ggplot(doc)+geom_roc(aes(d=y, m=probs), n.cuts=0)
+ROCplot</code></pre>
+<p><img src="/project2_files/figure-html/unnamed-chunk-6-2.png" width="768" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.5823705</code></pre>
+<pre class="r"><code>probs&lt;-predict(fit3, type=&quot;response&quot;)
+class_diag(probs, doc$health)</code></pre>
+<pre><code>##            acc       sens      spec       ppv       auc
+## good 0.4222222 0.04371585 0.9290323 0.4210526 0.3614711</code></pre>
+</div>
+</div>
+<div id="coefficient-estimates-for-mdu-was-0.016-for-ndisease--0.0168-and-the-interaction-between-both-was--0.0065.-according-to-the-matrix-accuracy-0.422-sensitivity-0.0437-specificity-0.929-precision-0.421-and-auc-0.361.-the-true-positive-rate-was-0.422-a-rather-low-value." class="section level1">
+<h1>Coefficient estimates for “mdu” was 0.016, for “ndisease” -0.0168, and the interaction between both was -0.0065. According to the matrix, Accuracy: 0.422, Sensitivity: 0.0437, Specificity: 0.929, Precision: 0.421, and AUC 0.361. The true positive rate was 0.422, a rather low value.</h1>
+<div id="lasso" class="section level3">
+<h3>Lasso</h3>
+<pre class="r"><code>library(glmnet)
+y&lt;-as.matrix(doc$y)
+x&lt;-model.matrix(health~., data=doc)[,-1]
+cv&lt;-cv.glmnet(x,y, family=&quot;binomial&quot;)
+lasso&lt;-glmnet(x,y, family=&quot;binomial&quot;, lambda=cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 11 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                        s0
+## (Intercept) -7.568885e+00
+## mdu          .           
+## ndisease     .           
+## educdec      .           
+## age          .           
+## childTRUE    1.465035e+01
+## mdu_c        .           
+## ndisease_c   .           
+## educdec_c    .           
+## y            1.460158e-14
+## logit        .</code></pre>
+<pre class="r"><code>set.seed(1234)
+k=10 
+
+data&lt;-doc[sample(nrow(doc)),]  
+folds&lt;-cut(seq(1:nrow(doc)),breaks=k,labels=F)  
+
+diags&lt;-NULL 
+for(i in 1:k){
+  
+train&lt;-data[folds!=i,] 
+test&lt;-data[folds==i,]
+truth&lt;-test$child
+  
+fit&lt;-glm(child~(.)^2,data=train,family=&quot;binomial&quot;) 
+probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+  
+diags&lt;-rbind(diags,class_diag(probs,truth)) 
+}
+
+summarize_all(diags, mean)</code></pre>
+<pre><code>##   acc sens spec ppv auc
+## 1   1    1    1   1   1</code></pre>
+</div>
+</div>
